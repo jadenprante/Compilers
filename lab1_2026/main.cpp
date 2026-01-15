@@ -34,6 +34,7 @@ int main(int argc, char **argv)
     const char *outfile_name;
     int result = 0;
     int token;
+    int do_test2 = 0;
 
     std::cout << "Jaden Prante" << std::endl;
 
@@ -66,6 +67,7 @@ int main(int argc, char **argv)
         }
     }
 
+    if (argc > 3) do_test2 = 1;
     std::cout << "<program>\n";
 
     token = yylex();
@@ -119,6 +121,22 @@ int main(int argc, char **argv)
             std::cout << "<close />\n";
             g_symbolTable.DecreaseScope();
         }
+    
+    #ifdef TEST2
+        if (do_test2 && token == IDENTIFIER)
+            printf("%d:%s:%lld\n", token, yytext, yylval.symbol->GetId());
+        else
+            printf("%d:%s\n", token, yytext);
+    #else
+        if (do_test2)
+        {
+            fprintf(stderr, "Not compiled with TEST2 defined\n");
+            return 0;
+        }
+        else
+            printf("%d:%s\n", token, yytext);
+    #endif
+
         token = yylex();
     }
 
