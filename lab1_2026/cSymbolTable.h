@@ -5,6 +5,8 @@
 //
 
 // NOTE: The following typedef will have to be replaced by something meaningful
+#include "cSymbol.h"
+
 typedef void symbolTable_t;
 
 class cSymbolTable

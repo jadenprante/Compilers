@@ -9,35 +9,28 @@
 # Date: Jan. 12, 2016
 #
 
-COPTS=-Wall -g -c -O0 -std=c++11
-OBJS=main.o \
-	 langlex.o \
+COPTS=-Wall -g -c -O0 -std=c++11 
+OBJS = main.o \
+       langlex.o \
+       cSymbolTable.o
 
 all: lang
 
-clean:
-	rm -f $(OBJS)
-	rm -f *.o
-	rm -f langlex.c
-	rm -f lang
-	rm -f out.xml
-	rm -f out2.xml
+lang: $(OBJS)
+	$(CXX) $(OBJS) -o lang
 
-.c.o:
-	g++ $(COPTS) $? -o $@
-
-.cpp.o:
-	g++ $(COPTS) $? -o $@
-
-main.o: main.cpp langlex.c 
-	g++ $(COPTS) main.cpp -o main.o
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 langlex.c: lang.l
 	flex -o langlex.c lang.l
 
 langlex.o: langlex.c
-	g++ $(COPTS) -Wno-sign-compare $? -o $@
+	$(CXX) $(CXXFLAGS) -Wno-sign-compare -c langlex.c -o langlex.o
 
-lang: $(OBJS)
-	g++ $(OBJS) -o lang
-
+clean:
+	rm -f *.o
+	rm -f lang
+	rm -f langlex.c
+	rm -f out.xml
+	rm -f out2.xml
