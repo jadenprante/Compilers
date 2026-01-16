@@ -17,17 +17,17 @@ extern char *yytext;        // text of the current token
 extern int yylineno;        // line number of current token
 extern FILE *yyin;          // input file for lexer
 
-typedef union
+/*typedef union
 {
     int token;
     cSymbol *symbol;
-} yylval_t;
+} yylval_t;*/
 
-extern yylval_t yylval;
+// extern yylval_t yylval;
 extern char *yytext;        // text of the current token
 extern int yylineno;        // line number of current token
 extern FILE *yyin;          // input file for lexer
-extern int g_insert;        // global to indicate that symbols should be 
+//extern int g_insert;        // global to indicate that symbols should be 
                             // inserted into the symbol table
 extern int g_local;         // global to indicate to do local lookups
 

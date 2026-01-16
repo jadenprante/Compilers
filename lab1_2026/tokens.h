@@ -18,31 +18,34 @@
 #define CLOSE       1020
 
 // Lab 2 code
-#define PROGRAM     1000        // program
-#define IF          1001        // if
-#define ELSE        1002        // else
-#define ENDIF       1003        // endif
-#define WHILE       1004        // while
-#define PRINT       1005        // print
-#define CHAR        1006        // char
-#define INT         1007        // int
-#define LONG        1008        // Wlong
-#define FLOAT       1009        // float
-#define DOUBLE      1010        // double
-#define INT_VAL     1011        // <an integer constant>
-#define FLOAT_VAL   1012        // <a float constant>
-#define STRUCT      1013        // struct
-#define ARRAY       1014        // array
-#define RETURN      1015        // return
-#define IDENTIFIER  1016        // <a C style identifier>
-#define NOT_EQUALS  1017        // !=
-#define EQUALS      1018        // ==
-#define AND         1019        // &&
-#define OR          1020        // ||
-#define GE          1021        // >=
-#define LE          1022        // <=
-#define PRINTS      1023        // prints
-#define STRING_LIT  1024        // "stuff..."
+#define PROGRAM     1000
+#define IF          1001
+#define ELSE        1002
+#define ENDIF       1003
+#define WHILE       1004
+#define PRINT       1005
+#define PRINTS      1006
+#define CHAR        1007
+#define INT         1008
+#define LONG        1009
+#define FLOAT       1010
+#define DOUBLE      1011
+#define STRUCT      1012
+#define ARRAY       1013
+#define RETURN      1024  //  ensure this doesn’t conflict with IDENTIFIER
 
+// Constants / literals
+#define INT_VAL     1021
+#define FLOAT_VAL   1022
+#define STRING_LIT  1023
+
+// Operators
+#define NOT_EQUALS  1024
+#define EQUALS      1025
+#define AND         1026
+#define OR          1027
+#define GE          1028
+#define LE          1029
+
+// Junk
 #define JUNK_TOKEN  2000
-

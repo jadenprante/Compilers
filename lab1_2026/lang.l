@@ -11,67 +11,18 @@
 // Illustration showing how to use {} to control scope
 // NOTE: this is pseudo-code illustrating how you can adapt your current lang.l
 
-#include "cSymbol.h"
-#include "cSymbolTable.h"
-#include "lex.h"
+
 #include "tokens.h"
+#include "lex.h"
+#include "cSymbolTable.h"
+#include <string>
 
-//#define DEBUG_OUTPUT
-#ifdef DEBUG_OUTPUT
-    #define DO_RETURN(a) { return Return(a); }
-#else
-    #define DO_RETURN(a) { return (a); }
-#endif
+using namespace std;
 
-static int ProcessID();
-int Return(int val);
-%}
+extern cSymbolTable g_symbolTable;
+extern yylval_t yylval;
+extern bool g_insert;
 
-%option noyywrap
-%option noinput
-%option nounput
-%option yylineno
-
-    /* definitions go here. period is an example. */
-    /* NOTE: You do not need to use definitions */
-letters          [a-z]
-%%
-
-    // token definitions. I gave "program" as an example
-program                   DO_RETURN(PROGRAM);
-
-%%
-
-    /* definitions go here. whitespace is an example. */
-whitespace      '[\t\n\r ]'
-
-%%
-{whitespace}+               {} /* Ignore whitespace */
-;                           {} /* Ignore semicolons */
-    /* control scope with curly braces
-     NOTE: This functionality will eventually move to the parser
-    */
-"{"                         return OPEN;
-"}"                         return CLOSE;
-LOCAL                       return LOCAL;
-GLOBAL                      return GLOBAL;
-LOOKUP                      return LOOKUP;
-INSERT                      return INSERT;
-"if"                        return IF;
-"else"                      return ELSE;
-"while"                     return WHILE;
-[A-Za-z_][A-Za-z0-9_]*   DO_RETURN(Process_ID(yytext));
-[0-9]+                      return INT;
-[0-9]+"."[0-9]+             return FLOAT;
-\"[^\"]*\"                  return STRING_LIT;
-[a-z]+                      {
-                                return ProcessID();
-                            }
-
-%%
-
-//******************************************************
-// ProcessID: create symbols in symbol table
 static int ProcessID()
 {
     string name(yytext);
@@ -90,15 +41,73 @@ static int ProcessID()
     {
         sym = new cSymbol(name);
     }
-    yylval.symbol = sym;
 
+    yylval.symbol = sym;
     return IDENTIFIER;
 }
 
-// This function allows us to do extra processing on each token
-// It is used to generate lexer debug info
 int Return(int val)
 {
     printf("Scanned '%s': %d\n", yytext, val);
     return val;
 }
+
+%}
+
+%%
+[ \t\r\n]+                ;
+"//".*                    ;
+
+"{"                       { return OPEN; }
+"}"                       { return CLOSE; }
+
+"program"                 { return PROGRAM; }
+"if"                      { return IF; }
+"else"                    { return ELSE; }
+"endif"                   { return ENDIF; }
+"while"                   { return WHILE; }
+"print"                   { return PRINT; }
+"prints"                  { return PRINTS; }
+"char"                    { return CHAR; }
+"int"                     { return INT; }
+"long"                    { return LONG; }
+"float"                   { return FLOAT; }
+"double"                  { return DOUBLE; }
+"struct"                  { return STRUCT; }
+"array"                   { return ARRAY; }
+"return"                  { return RETURN; }
+
+[A-Za-z_][A-Za-z0-9_]*     { return ProcessID(); }
+
+[0-9]+\.[0-9]+            { yylval.symbol = nullptr; return FLOAT_VAL; }
+[0-9]+                     { yylval.symbol = nullptr; return INT_VAL; }
+
+\"[^\"]*\"                { yylval.symbol = nullptr; return STRING_LIT; }
+
+"=="                      { return EQUALS; }
+"!="                      { return NOT_EQUALS; }
+">="                      { return GE; }
+"<="                      { return LE; }
+"&&"                      { return AND; }
+"||"                      { return OR; }
+
+"("                       { return '('; }
+")"                       { return ')'; }
+";"                       { return ';'; }
+","                       { return ','; }
+"."                       { return '.'; }
+"+"                       { return '+'; }
+"-"                       { return '-'; }
+"*"                       { return '*'; }
+"/"                       { return '/'; }
+"%"                       { return '%'; }
+"="                       { return '='; }
+">"                       { return '>'; }
+"<"                       { return '<'; }
+"["                       { return '['; }
+"]"                       { return ']'; }
+
+.                         { return JUNK_TOKEN; }
+%%
+
+int yywrap() { return 1; }
