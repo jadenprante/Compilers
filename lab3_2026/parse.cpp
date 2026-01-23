@@ -1,4 +1,4 @@
-//**************************************
+﻿//**************************************
 // parse.cpp
 //
 // Starting point for top-down recursive-descent parser
@@ -12,51 +12,201 @@
 #include "lex.h"
 #include "parse.h"
 #include "utils.h"
+#include "tokens.h"
 
-//*******************************************
-// Find a PROG non-terminal
-// NOTE: this code is not complete
+bool FindPROG();
+bool FindSTMTS();
+bool FindSTMT();
+bool FindEXPR();
+bool FindEXPR_P();
+bool FindTERM();
+bool FindTERM_P();
+bool FindFACTOR();
+
+//--------------------------------------------------
+// PROGRAM → STMTS end
 bool FindPROG()
 {
-    // if (didn't find program)
+    if (!FindSTMTS())
+        return false;
+
+    int token = AdvanceToken();
+    if (token != END && token != 0)
     {
-        Error("Program");
+        Error("end");
         return false;
     }
-    // else
-    {
+
+    std::cout << "Found a Program\n";
+    return true;
+}
+
+//--------------------------------------------------
+// STMTS → STMT STMTS | ε
+bool FindSTMTS()
+{
+    int token = PeekToken();
+
+    if (token == END || token == 0)
         return true;
+
+    if (!FindSTMT())
+    {
+        // error recovery: skip to semicolon or end
+        while (PeekToken() != SEMI &&
+            PeekToken() != END &&
+            PeekToken() != 0)
+            AdvanceToken();
+
+        if (PeekToken() == SEMI)
+            AdvanceToken();
     }
 
+    return FindSTMTS();
 }
-//*******************************************
-// Find a STMT non-terminal
-// NOTE: this code is not complete
+
+//--------------------------------------------------
+// STMT → identifier = EXPR ;
+//      | EXPR ;
 bool FindSTMT()
 {
-    // if (didn't find STMT)
+    int token = PeekToken();
+
+    // Possible assignment or expression
+    if (token == IDENTIFIER)
     {
+        int id = AdvanceToken();     // consume identifier
+        int next = PeekToken();      // look ahead
+
+        if (next == ASSIGN)
+        {
+            AdvanceToken(); // consume '='
+
+            if (!FindEXPR())
+                return false;
+
+            if (AdvanceToken() != SEMI)
+            {
+                Error(";");
+                return false;
+            }
+
+            std::cout << "Found a statement\n";
+            return true;
+        }
+
+        // Not assignment → put identifier back for EXPR
+        UngetToken(id);
+    }
+
+    // Expression statement
+    if (!FindEXPR())
+        return false;
+
+    if (AdvanceToken() != SEMI)
+    {
+        Error(";");
         return false;
     }
-    // else
-    {
-        std::cout << "Found a statement\n";
-        return true;
-    }
 
+    std::cout << "Found a statement\n";
+    return true;
 }
-/*******************************************
-bool FindExample()
-{
-    if (!FindPART1()) return false;
-    
-    int token = PeekToken();
-    if (token != '+') return false;
-    AdvanceToken();         // past '+'
 
-    if (!FindPART2()) return false;
+
+//--------------------------------------------------
+// EXPR → TERM EXPR'
+bool FindEXPR()
+{
+    if (!FindTERM())
+        return false;
+
+    return FindEXPR_P();
+}
+
+//--------------------------------------------------
+// EXPR' → (+ | -) TERM EXPR' | ε
+bool FindEXPR_P()
+{
+    int token = PeekToken();
+
+    if (token == PLUS || token == MINUS)
+    {
+        AdvanceToken(); // + or -
+
+        if (!FindTERM())
+            return false;
+
+        return FindEXPR_P();
+    }
 
     return true;
 }
-*/
 
+//--------------------------------------------------
+// TERM → FACTOR TERM'
+bool FindTERM()
+{
+    if (!FindFACTOR())
+        return false;
+
+    return FindTERM_P();
+}
+
+//--------------------------------------------------
+// TERM' → (* | /) FACTOR TERM' | ε
+bool FindTERM_P()
+{
+    int token = PeekToken();
+
+    if (token == TIMES || token == DIV)
+    {
+        AdvanceToken(); // * or /
+
+        if (!FindFACTOR())
+            return false;
+
+        return FindTERM_P();
+    }
+
+    return true;
+}
+
+//--------------------------------------------------
+// FACTOR → num | identifier | ( EXPR )
+bool FindFACTOR()
+{
+    int token = PeekToken();
+
+    if (token == NUM)
+    {
+        AdvanceToken();
+        return true;
+    }
+
+    if (token == IDENTIFIER)
+    {
+        AdvanceToken();
+        return true;
+    }
+
+    if (token == '(')
+    {
+        AdvanceToken(); // '('
+
+        if (!FindEXPR())
+            return false;
+
+        if (AdvanceToken() != ')')
+        {
+            Error(")");
+            return false;
+        }
+
+        return true;
+    }
+
+    Error("NUM");
+    AdvanceToken();
+    return false;
+}

@@ -16,43 +16,37 @@ using std::cout;
 static int g_token = -1;
 
 //*******************************************
-void Error(std::string expecting)
-{
-    if (yytext != NULL && strlen(yytext) > 0)
-        cout << "Found '" << yytext << "' when expecting a " << expecting;
+void Error(std::string expecting) {
+    if (yytext != nullptr && strlen(yytext) > 0)
+        std::cout << "Found '" << yytext << "' when expecting a '"
+        << expecting << "' in line " << yylineno << std::endl;
     else
-        cout << "Found End-Of-File when expecting a " << expecting;
-
-    std::cout << " in line " << yylineno << std::endl;
+        std::cout << "Found End-Of-File when expecting a '"
+        << expecting << "' in line " << yylineno << std::endl;
 }
+
 //*******************************************
-int GetToken()
-{
+int GetToken() {
     int token = g_token;
     if (token < 0) token = yylex();
     g_token = -1;
-
     return token;
 }
+
 //*******************************************
-int UngetToken(int token)
-{
+int UngetToken(int token) {
     g_token = token;
-
     return g_token;
 }
 
 //*******************************************
-int PeekToken()
-{
+int PeekToken() {
     if (g_token < 0) g_token = yylex();
-
     return g_token;
 }
-//*******************************************
-int AdvanceToken()
-{
-    g_token = yylex();
 
+//*******************************************
+int AdvanceToken() {
+    g_token = yylex();
     return g_token;
 }

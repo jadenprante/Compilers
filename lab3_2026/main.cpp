@@ -15,6 +15,8 @@
 //**********************************************************
 int main(int argc, char **argv)
 {
+    std::cout << "Jaden Prante\n";
+
     const char *outfile_name;
     int result = 0;
 
