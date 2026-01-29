@@ -14,67 +14,103 @@
 #include <unistd.h>
 #include <iostream>
 #include <fstream>
-#include "cSymbol.h"
-#include "cSymbolTable.h"
+
 #include "lex.h"
 #include "tokens.h"
 
+// ---------- Lab 1 & 2 ----------
+#include "cSymbol.h"
+#include "cSymbolTable.h"
+
+// ---------- Lab 3 ----------
+#include "astnodes.h"
+#include "langparse.h"
+
+// --------------------------------------------------
+// Globals required by scanner / parser
 cSymbolTable g_symbolTable;
 long long cSymbol::nextId = 0;
 yylval_t yylval;
-int g_insert = 1;           // global to indicate that symbols should be 
-                            // inserted into the symbol table
-int g_local = 0;            // global to indicate to do local lookups
 
-// **************************************************
-// argv[1] is the input file
-// argv[2] if present, is the output file
-int main(int argc, char **argv)
+int g_insert = 1;   // insert symbols
+int g_local = 0;   // local vs global lookup
+
+// --------------------------------------------------
+int main(int argc, char** argv)
 {
-    const char *outfile_name;
+    const char* outfile_name;
     int result = 0;
-    int token;
 
-    std::cout << "Philip Howard" << std::endl;
+    std::cout << "Jaden Prante" << std::endl;
 
-    // open input
+    // ---------- Open input ----------
     if (argc > 1)
     {
         yyin = fopen(argv[1], "r");
-        if (yyin == NULL)
+        if (yyin == nullptr)
         {
             std::cerr << "Unable to open file " << argv[1] << "\n";
             exit(-1);
         }
     }
 
-    // open output
+    // ---------- Open output ----------
     if (argc > 2)
     {
         outfile_name = argv[2];
-        FILE *output = fopen(outfile_name, "w");
-        if (output == NULL)
+        FILE* output = fopen(outfile_name, "w");
+        if (output == nullptr)
         {
             std::cerr << "Unable to open output file " << outfile_name << "\n";
             exit(-1);
         }
+
         int output_fd = fileno(output);
         if (dup2(output_fd, 1) != 1)
         {
-            std::cerr << "Unable to send output to " << outfile_name << "\n";
-            exit(-2);
+            std::cerr << "Unable to redirect output\n";
+            exit(-1);
         }
     }
 
+    // =========================================================
+    // LAB 3 MODE — Parser + AST
+    // =========================================================
+    if (yyparse)
+    {
+        result = yyparse();
+
+        if (yyast_root != nullptr)
+        {
+            if (result == 0)
+            {
+                std::cout << yyast_root->ToString();
+            }
+            else
+            {
+                std::cout << " Errors in compile\n";
+            }
+        }
+
+        if (result == 0 && yylex() != 0)
+        {
+            std::cout << "Junk at end of program\n";
+        }
+
+        return result;
+    }
+
+    // =========================================================
+    // LAB 1 & 2 MODE — Scanner + Symbol Table
+    // =========================================================
     std::cout << "<program>\n";
 
-    token = yylex();
+    int token = yylex();
     while (token != 0)
     {
-        // if we found an identifier, print it out
-        if (token == IDENTIFIER) 
+        if (token == IDENTIFIER)
         {
-            cSymbol *sym;
+            cSymbol* sym;
             if (!g_insert)
             {
                 if (g_local)
@@ -82,11 +118,10 @@ int main(int argc, char **argv)
                 else
                     sym = g_symbolTable.Find(yylval.symbol->GetName());
 
-                if (sym != nullptr) yylval.symbol = sym;
+                if (sym != nullptr)
+                    yylval.symbol = sym;
             }
 
-            // this will either be the one found above or the one created
-            // in the scanner.
             std::cout << yylval.symbol->ToString() << "\n";
         }
         else if (token == LOCAL)
@@ -119,10 +154,10 @@ int main(int argc, char **argv)
             std::cout << "<close />\n";
             g_symbolTable.DecreaseScope();
         }
+
         token = yylex();
     }
 
     std::cout << "</program>\n";
-
     return result;
 }
