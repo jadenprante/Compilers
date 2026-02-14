@@ -9,42 +9,43 @@
 # Date: Jan. 12, 2016
 #
 
-COPTS    = -Wall -g -c -O0 -std=c++11
+# Makefile for Lab1 Compiler
+CXX = g++
+CXXFLAGS = -Wall -g -O0 -std=c++11
 
-OBJS = main.o \
-       langlex.o \
-       langparse.o \
-       cSymbolTable.o \
-       cVisitor.o
+OBJS = langparse.o langlex.o main.o cSymbolTable.o
 
 all: lang
 
 lang: $(OBJS)
-	$(CXX) $(OBJS) -o lang
+	$(CXX) $(CXXFLAGS) $(OBJS) -o lang
 
-%.o: %.cpp
-	$(CXX) $(COPTS) $< -o $@
+# -------------------------------
+# Bison (generate cpp and header)
+# -------------------------------
+langparse.cpp langparse.h: lang.y
+	bison --defines=langparse.h --output=langparse.cpp lang.y
 
-langlex.c: lang.l langparse.c
+langparse.o: langparse.cpp langparse.h
+	$(CXX) $(CXXFLAGS) -c langparse.cpp -o langparse.o
+
+# -------------------------------
+# Flex
+# -------------------------------
+langlex.c: lang.l langparse.h
 	flex -o langlex.c lang.l
 
-langlex.o: langlex.c
-	$(CXX) $(COPTS) -Wno-sign-compare langlex.c -o langlex.o
+langlex.o: langlex.c langparse.h
+	$(CXX) $(CXXFLAGS) -Wno-sign-compare -c langlex.c -o langlex.o
 
-langparse.c langparse.h: lang.y
-	bison --defines=langparse.h -o langparse.c lang.y
+# -------------------------------
+# Other objects
+# -------------------------------
+main.o: main.cpp langparse.h
+	$(CXX) $(CXXFLAGS) -c main.cpp -o main.o
 
-langparse.o: langparse.c
-	$(CXX) $(COPTS) langparse.c -o langparse.o
-
-main.o: main.cpp langlex.c langparse.c
-	$(CXX) $(COPTS) main.cpp -o main.o
+cSymbolTable.o: cSymbolTable.cpp cSymbolTable.h
+	$(CXX) $(CXXFLAGS) -c cSymbolTable.cpp -o cSymbolTable.o
 
 clean:
-	rm -f *.o
-	rm -f lang
-	rm -f langlex.c
-	rm -f langparse.c
-	rm -f langparse.h
-	rm -f out.xml
-	rm -f out2.xml
+	rm -f *.o lang langlex.c langparse.cpp langparse.h y.tab.h

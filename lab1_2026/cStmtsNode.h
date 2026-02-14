@@ -1,4 +1,3 @@
-#pragma once
 //**************************************
 // cStmtsNode.h
 //
@@ -8,12 +7,14 @@
 // phil.howard@oit.edu
 //
 
+#pragma once
 #include "cAstNode.h"
 #include "cStmtNode.h"
 
 class cStmtsNode : public cAstNode
 {
     public:
+		cStmtsNode() : cAstNode() {}
         // param is first stmt in the list of statements
         cStmtsNode(cStmtNode *stmt) : cAstNode()
         {

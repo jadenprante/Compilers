@@ -32,7 +32,7 @@
 #define DOUBLE      1011
 #define STRUCT      1012
 #define ARRAY       1013
-#define RETURN      1024  //  ensure this doesn’t conflict with IDENTIFIER
+#define RETURN      1124  //  ensure this doesn’t conflict with IDENTIFIER
 
 // Constants / literals
 #define INT_VAL     1021

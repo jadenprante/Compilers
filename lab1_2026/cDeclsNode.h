@@ -1,4 +1,3 @@
-#pragma once
 //**************************************
 // cDeclsNode.h
 //
@@ -8,12 +7,14 @@
 // phil.howard@oit.edu
 //
 
+#pragma once
 #include "cAstNode.h"
 #include "cDeclNode.h"
 
 class cDeclsNode : public cAstNode
 {
     public:
+		cDeclsNode() : cAstNode() {}
         // param is the first decl in this decls
         cDeclsNode(cDeclNode *decl) : cAstNode()
         {

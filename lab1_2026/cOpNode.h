@@ -1,4 +1,3 @@
-#pragma once
 //**************************************
 // cOpNode.h
 //
@@ -10,8 +9,17 @@
 // Date: Jan. 18, 2016
 //
 
+#pragma once
 #include "cAstNode.h"
 #include "langparse.h"
+
+/*#define NOT_EQUALS 256
+#define EQUALS     257
+#define OR         258
+#define AND        259
+#define GE         260
+#define LE         261*/
+
 
 class cOpNode : public cAstNode
 {

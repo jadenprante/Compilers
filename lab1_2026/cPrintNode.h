@@ -1,4 +1,3 @@
-#pragma once
 //**************************************
 // cPrintNode.h
 //
@@ -11,6 +10,7 @@
 // phil.howard@oit.edu
 //
 
+#pragma once
 #include "cAstNode.h"
 #include "cStmtNode.h"
 #include "cExprNode.h"
@@ -23,7 +23,7 @@ class cPrintNode : public cStmtNode
         {
             AddChild(expr);
         }
-
+		
         virtual string NodeType() { return string("print"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
 };

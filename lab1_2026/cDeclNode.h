@@ -1,4 +1,3 @@
-#pragma once
 //**************************************
 // cDeclNode
 //
@@ -9,6 +8,7 @@
 // phil.howard@oit.edu
 //
 
+#pragma once
 #include "cAstNode.h"
 
 class cDeclNode : public cAstNode

@@ -1,113 +1,80 @@
+%option noyywrap
+
 %{
-//**************************************
-// lang.l
-//
-// Scanner definition file
-//
-// Author: Phil Howard 
-// phil.howard@oit.edu
-//
-
-// Illustration showing how to use {} to control scope
-// NOTE: this is pseudo-code illustrating how you can adapt your current lang.l
-
-
-#include "tokens.h"
-#include "lex.h"
+#include <cstdlib>
+#include <cstring>
+#include "langparse.h"
+#include "cSymbol.h"
 #include "cSymbolTable.h"
-#include <string>
-
-using namespace std;
 
 extern cSymbolTable g_symbolTable;
-extern yylval_t yylval;
-extern bool g_insert;
+%}
 
-static int ProcessID()
-{
-    string name(yytext);
-    cSymbol *sym;
+%%
 
-    if (g_insert)
-    {
-        sym = g_symbolTable.FindLocal(name);
-        if (sym == nullptr)
-        {
-            sym = new cSymbol(name);
-            g_symbolTable.Insert(sym);
-        }
-    }
-    else
-    {
-        sym = new cSymbol(name);
-    }
+"if"        { return IF; }
+"else"      { return ELSE; }
+"endif"     { return ENDIF; }
+"prints"    { return PRINT; }
+"return"    { return RETURN; }
+"struct"    { return STRUCT; }
+"array"     { return ARRAY; }
+"local"     { return LOCAL; }
+"global"    { return GLOBAL; }
+"lookup"    { return LOOKUP; }
+"insert"    { return INSERT; }
 
+"char"      { yylval.symbol = g_symbolTable.Find("char"); return CHAR; }
+"int"       { yylval.symbol = g_symbolTable.Find("int"); return INT; }
+"long"      { yylval.symbol = g_symbolTable.Find("long"); return LONG; }
+"float"     { yylval.symbol = g_symbolTable.Find("float"); return FLOAT; }
+"double"    { yylval.symbol = g_symbolTable.Find("double"); return DOUBLE; }
+
+
+[0-9]+\.[0-9]+ {
+    yylval.float_val = atof(yytext);
+    return FLOAT_VAL;
+}
+
+[0-9]+ {
+    yylval.int_val = atoi(yytext);
+    return INT_VAL;
+}
+
+\"([^\\\"]|\\.)*\" {
+    yylval.str_val = strdup(yytext+1);
+    yylval.str_val[strlen(yylval.str_val)-1] = 0;
+    return STRING_LIT;
+}
+
+[a-zA-Z_][a-zA-Z0-9_]* {
+    cSymbol *sym = g_symbolTable.Find(yytext);
+    if (!sym)
+        sym = new cSymbol(yytext);
     yylval.symbol = sym;
     return IDENTIFIER;
 }
 
-int Return(int val)
-{
-    printf("Scanned '%s': %d\n", yytext, val);
-    return val;
-}
+"=="    { return EQUALS; }
+"!="    { return NOT_EQUALS; }
+">="    { return GE; }
+"<="    { return LE; }
+"&&"    { return AND; }
+"||"    { return OR; }
+"+"     { return '+'; }
+"-"     { return '-'; }
+"*"     { return '*'; }
+"/"     { return '/'; }
+"%"     { return '%'; }
 
-%}
+"{"     { return OPEN; }
+"}"     { return CLOSE; }
+"("     { return '('; }
+")"     { return ')'; }
+";"     { return ';'; }
+
+[ \t\r\n]+   ;
+
+.           { return yytext[0]; }
 
 %%
-[ \t\r\n]+                ;
-"//".*                    ;
-
-"{"                       { return OPEN; }
-"}"                       { return CLOSE; }
-
-"program"                 { return PROGRAM; }
-"if"                      { return IF; }
-"else"                    { return ELSE; }
-"endif"                   { return ENDIF; }
-"while"                   { return WHILE; }
-"print"                   { return PRINT; }
-"prints"                  { return PRINTS; }
-"char"                    { return CHAR; }
-"int"                     { return INT; }
-"long"                    { return LONG; }
-"float"                   { return FLOAT; }
-"double"                  { return DOUBLE; }
-"struct"                  { return STRUCT; }
-"array"                   { return ARRAY; }
-"return"                  { return RETURN; }
-
-[A-Za-z_][A-Za-z0-9_]*     { return ProcessID(); }
-
-[0-9]+\.[0-9]+            { yylval.symbol = nullptr; return FLOAT_VAL; }
-[0-9]+                     { yylval.symbol = nullptr; return INT_VAL; }
-
-\"[^\"]*\"                { yylval.symbol = nullptr; return STRING_LIT; }
-
-"=="                      { return EQUALS; }
-"!="                      { return NOT_EQUALS; }
-">="                      { return GE; }
-"<="                      { return LE; }
-"&&"                      { return AND; }
-"||"                      { return OR; }
-
-"("                       { return '('; }
-")"                       { return ')'; }
-";"                       { return ';'; }
-","                       { return ','; }
-"."                       { return '.'; }
-"+"                       { return '+'; }
-"-"                       { return '-'; }
-"*"                       { return '*'; }
-"/"                       { return '/'; }
-"%"                       { return '%'; }
-"="                       { return '='; }
-">"                       { return '>'; }
-"<"                       { return '<'; }
-"["                       { return '['; }
-"]"                       { return ']'; }
-
-.                         { return JUNK_TOKEN; }
-%%
-
-int yywrap() { return 1; }

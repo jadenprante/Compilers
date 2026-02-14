@@ -1,4 +1,3 @@
-#pragma once
 //**************************************
 // cBlockNode.h
 //
@@ -13,6 +12,7 @@
 // Date: Jan. 18, 2016
 //
 
+#pragma once
 #include "cAstNode.h"
 #include "cDeclsNode.h"
 #include "cStmtNode.h"

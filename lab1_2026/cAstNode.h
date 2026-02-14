@@ -1,4 +1,3 @@
-#pragma once
 //**************************************
 // cAstNode.h
 //
@@ -9,6 +8,7 @@
 //
 //
 
+#pragma once
 #include <string>
 #include <vector>
 #include <iostream>
@@ -114,28 +114,39 @@ class cAstNode
 
         //*************************************
         // return a string representation of the node
-        string ToString() 
-        {
-            string result("");
+		string ToString()
+		{
+			return ToStringImpl(0, true);
+		}
 
-            result += "<" + NodeType();
-            result += AttributesToString();
+		private:
+			string ToStringImpl(int indent, bool isRoot)
+			{
+				string result;
 
-            if (HasChildren())
-            {
-                result += ">";
-                for (auto it=m_children.begin(); it != m_children.end(); it++)
-                {
-                    if ( (*it) != nullptr) result += (*it)->ToString();
-                }
+				if (isRoot && NodeType() == "program")
+				result += "<?xml version=\"1.0\"?>\n";
 
-                result += "</" + NodeType() + ">\n";
-            }
-            else
-                result += " />";
+			result.append(indent * 2, ' ');
+			result += "<" + NodeType();
+			result += AttributesToString();
 
-            return result;
-        }
+			if (HasChildren())
+			{
+				result += ">\n";
+				for (auto it = m_children.begin(); it != m_children.end(); ++it)
+					if ((*it) != nullptr) result += (*it)->ToStringImpl(indent + 1, false);
+
+				result.append(indent * 2, ' ');
+				result += "</" + NodeType() + ">\n";
+			}
+			else
+			{
+				result += "/>\n";
+			}
+
+        return result;
+    }
 
         //*************************************
         // Used to print semantic errors

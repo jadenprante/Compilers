@@ -24,23 +24,17 @@ cSymbolTable::cSymbolTable()
 
 // ----------------------------------------
 // Increase scope
-symbolTable_t *cSymbolTable::IncreaseScope()
+void cSymbolTable::IncreaseScope()
 {
     scopes.push_back(Scope());
-    return reinterpret_cast<symbolTable_t*>(&scopes.back());
 }
 
 // ----------------------------------------
 // Decrease scope
-symbolTable_t *cSymbolTable::DecreaseScope()
+void cSymbolTable::DecreaseScope()
 {
     if (!scopes.empty())
         scopes.pop_back();
-
-    if (scopes.empty())
-        return nullptr;
-
-    return reinterpret_cast<symbolTable_t*>(&scopes.back());
 }
 
 // ----------------------------------------
@@ -55,7 +49,7 @@ void cSymbolTable::Insert(cSymbol *sym)
 
 // ----------------------------------------
 // Find symbol (inner → outer)
-cSymbol *cSymbolTable::Find(string name)
+cSymbol *cSymbolTable::Find(const std::string &name)
 {
     for (int i = scopes.size() - 1; i >= 0; --i)
     {
@@ -68,7 +62,7 @@ cSymbol *cSymbolTable::Find(string name)
 
 // ----------------------------------------
 // Find symbol in local scope only
-cSymbol *cSymbolTable::FindLocal(string name)
+cSymbol *cSymbolTable::FindLocal(const std::string &name)
 {
     if (scopes.empty())
         return nullptr;

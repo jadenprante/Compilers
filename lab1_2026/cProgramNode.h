@@ -1,4 +1,3 @@
-#pragma once
 //**************************************
 // cProgramNode.h
 //
@@ -8,6 +7,7 @@
 // phil.howard@oit.edu
 //
 
+#pragma once
 #include "cAstNode.h"
 #include "cBlockNode.h"
 
