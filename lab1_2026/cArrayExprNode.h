@@ -1,5 +1,7 @@
 #pragma once
 #include "cExprNode.h"
+#include "cSymbolTable.h"
+extern cSymbolTable g_symbolTable;
 
 class cArrayExprNode : public cExprNode
 {
@@ -21,5 +23,9 @@ public:
     virtual void Visit(cVisitor *visitor) override
     {
         visitor->Visit(this);
+    }
+    virtual cDeclNode* GetType()
+    {
+        return g_symbolTable.Find("char")->GetDecl();
     }
 };

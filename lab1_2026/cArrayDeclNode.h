@@ -20,7 +20,13 @@ public:
     }
 
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
+    virtual bool IsArray() { return true; }
 
+    virtual cDeclNode* GetType()
+    {
+        cSymbol* typeSym = dynamic_cast<cSymbol*>(GetChild(0));
+        return typeSym->GetDecl();
+    }
 private:
     int m_count;
 };

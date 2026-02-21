@@ -33,13 +33,21 @@
 
 #include "cPrintNode.h"
 
+#define CHECK_ERROR() { if (g_semanticErrorHappened) \
+    { g_semanticErrorHappened = false; } }
+
+#define PROP_ERROR() { if (g_semanticErrorHappened) \
+    { g_semanticErrorHappened = false; YYERROR; } }
+
 extern cSymbolTable g_symbolTable;
 extern cAstNode* yyast_root;
 int yylex();
+void SemanticParseError(std::string error);
 void yyerror(const char *msg)
 {
     fprintf(stderr, "Parse error: %s\n", msg);
 }
+static bool g_semanticErrorHappened = false;
 %}
 
 %union {
@@ -128,19 +136,19 @@ type:
 
 decl:
       type IDENTIFIER
-        { $$ = new cVarDeclNode($1, $2); }
+        { $$ = new cVarDeclNode($1, $2); PROP_ERROR(); }
 
     | type IDENTIFIER '[' INT_VAL ']'
-        { $$ = new cArrayDeclNode($1, $2, $4); }
+        { $$ = new cArrayDeclNode($1, $2, $4); PROP_ERROR(); }
 
-    | STRUCT IDENTIFIER OPEN  decls CLOSE
-        { $$ = new cStructDeclNode($4, $2); }
+    | STRUCT IDENTIFIER OPEN decls CLOSE
+        { $$ = new cStructDeclNode($4, $2); PROP_ERROR(); }
 
     | type IDENTIFIER '(' param_list ')' ';'
-        { $$ = new cFuncDeclNode($1, $2, $4, nullptr, nullptr); }
+        { $$ = new cFuncDeclNode($1, $2, $4, nullptr, nullptr); PROP_ERROR(); }
 
-    | type IDENTIFIER '(' param_list ')' OPEN  stmts CLOSE
-        { $$ = new cFuncDeclNode($1, $2, $4, nullptr, $7); }
+    | type IDENTIFIER '(' param_list ')' OPEN stmts CLOSE
+        { $$ = new cFuncDeclNode($1, $2, $4, nullptr, $7); PROP_ERROR(); }
 ;
 
 param_list:
@@ -205,3 +213,11 @@ expr:
 ;
 
 %%
+
+void SemanticParseError(std::string error)
+{
+    std::cout << "ERROR: " << error << " near line "
+              << yylineno << "\n";
+    g_semanticErrorHappened = true;
+    yynerrs++;
+}

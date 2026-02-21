@@ -15,4 +15,9 @@ public:
 
     virtual std::string NodeType() override { return "funcCall"; }
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
+    virtual cDeclNode* GetType()
+    {
+        cSymbol* sym = dynamic_cast<cSymbol*>(GetChild(0));
+        return sym->GetDecl()->GetType();
+    }
 };

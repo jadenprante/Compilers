@@ -17,7 +17,10 @@ public:
         return " name=\"" + m_symbol->GetName() + "\"";
     }
     virtual void Visit(cVisitor* visitor) override { visitor->Visit(this); }
-
+    virtual cDeclNode* GetType()
+    {
+        return m_symbol->GetDecl()->GetType();
+    }
 private:
     cSymbol* m_symbol;
 };

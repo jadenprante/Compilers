@@ -23,4 +23,8 @@ public:
     {
         visitor->Visit(this);
     }
+    virtual cDeclNode* GetType()
+    {
+        return nullptr;
+    }
 };

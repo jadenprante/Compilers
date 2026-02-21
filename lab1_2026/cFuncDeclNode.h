@@ -1,36 +1,54 @@
 #pragma once
-
 #include "cDeclNode.h"
 #include "cSymbol.h"
 #include "cParamsNode.h"
 #include "cDeclsNode.h"
 #include "cStmtsNode.h"
-#include "cVisitor.h"
+#include "cSymbolTable.h"
+
+extern cSymbolTable g_symbolTable;
+void SemanticParseError(std::string error);
 
 class cFuncDeclNode : public cDeclNode
 {
-private:
-    cSymbol *m_type;
-    cSymbol *m_name;
-    cParamsNode *m_params;
-    cDeclsNode *m_locals;
-    cStmtsNode *m_stmts;
-
 public:
     cFuncDeclNode(cSymbol *type, cSymbol *name,
-                  cParamsNode *params, cDeclsNode *locals,
+                  cParamsNode *params,
+                  cDeclsNode *locals,
                   cStmtsNode *stmts)
-        : m_type(type), m_name(name),
-          m_params(params), m_locals(locals), m_stmts(stmts)
+        : m_hasDefinition(stmts != nullptr)
     {
-        // Add children for visitor traversal
-        AddChild(m_type);
-        AddChild(m_name);
-        AddChild(m_params);
-        AddChild(m_locals);
-        AddChild(m_stmts);
+        cSymbol* existing = g_symbolTable.FindLocal(name->GetName());
+
+        if (existing && !existing->GetDecl()->IsFunc())
+        {
+            SemanticParseError("Symbol " + name->GetName() +
+                               " already defined in current scope");
+            return;
+        }
+
+        if (!existing)
+        {
+            g_symbolTable.Insert(name);
+            name->SetDecl(this);
+        }
+
+        AddChild(type);
+        AddChild(name);
+        AddChild(params);
+        AddChild(locals);
+        AddChild(stmts);
     }
 
     virtual string NodeType() override { return "funcdecl"; }
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
+    virtual bool IsFunc() { return true; }
+
+    virtual cDeclNode* GetType()
+    {
+        return dynamic_cast<cSymbol*>(GetChild(0))->GetDecl();
+    }
+
+private:
+    bool m_hasDefinition;
 };

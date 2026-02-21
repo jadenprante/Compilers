@@ -12,20 +12,15 @@
 
 #pragma once
 #include "cStmtNode.h"
+#include "cDeclNode.h"
 
 class cExprNode : public cStmtNode
 {
 public:
     cExprNode() : cStmtNode() {}
 
-    // Convenience constructor for binary expressions
-    cExprNode(cExprNode *lhs, cAstNode *op, cExprNode *rhs) : cStmtNode()
-    {
-        AddChild(lhs);
-        AddChild(op);
-        AddChild(rhs);
-    }
-
-    virtual string NodeType() override { return string("expr"); }
+    virtual string NodeType() override { return "expr"; }
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
+
+    virtual cDeclNode* GetType() = 0;
 };

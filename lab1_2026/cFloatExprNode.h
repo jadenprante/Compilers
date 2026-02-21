@@ -19,7 +19,10 @@ public:
     }
 
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
-
+    virtual cDeclNode* GetType()
+    {
+        return g_symbolTable.Find("float")->GetDecl();
+    }
 private:
     double m_value;
 };

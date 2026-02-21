@@ -24,7 +24,10 @@ public:
     {
         visitor->Visit(this);
     }
-
+    virtual cDeclNode* GetType()
+    {
+        return g_symbolTable.Find("char")->GetDecl();
+    }
 private:
     std::string m_value;
 };
