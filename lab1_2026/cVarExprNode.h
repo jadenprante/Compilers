@@ -11,6 +11,8 @@ public:
         AddChild(sym);
     }
 
+    cSymbol* GetSymbol();
+
     virtual string NodeType() override { return "var"; }
     virtual string AttributesToString() override
     {
@@ -21,6 +23,19 @@ public:
     {
         return m_symbol->GetDecl()->GetType();
     }
+    /*void cSemanticVisitor::Visit(cVarExprNode *node)
+    {
+        VisitAllChildren(node);
+
+        cDeclNode *decl = node->GetSymbol()->GetDecl();
+
+        if (decl->IsFunc())
+        {
+            SemanticParseError("Symbol " +
+            decl->GetName() +
+            " is a function, not a variable");
+        }
+    }*/
 private:
     cSymbol* m_symbol;
 };

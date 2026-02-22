@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cExprNode.h"
-#include "cOpNode.h"   
+#include "cOpNode.h"
 
 class cBinaryExprNode : public cExprNode
 {
@@ -10,17 +10,30 @@ public:
         : cExprNode()
     {
         AddChild(left);
-        AddChild(op);      // now compiler knows cOpNode inherits cAstNode
+        AddChild(op);
         AddChild(right);
     }
-	virtual string AttributesToString() override
+
+    // Required for Lab 5B
+    virtual cDeclNode* GetType() override;
+
+    // Helpers
+    cExprNode* GetLeft()
     {
-        return " op=\"" + m_op + "\"";
+        return dynamic_cast<cExprNode*>(GetChild(0));
     }
 
+    cOpNode* GetOpNode()
+    {
+        return dynamic_cast<cOpNode*>(GetChild(1));
+    }
 
-    virtual string NodeType() override { return "expr"; }
+    cExprNode* GetRight()
+    {
+        return dynamic_cast<cExprNode*>(GetChild(2));
+    }
+
+    virtual string NodeType() override { return "binary"; }
+
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
-private:
-    string m_op;
 };

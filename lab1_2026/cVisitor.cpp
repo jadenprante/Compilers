@@ -33,11 +33,7 @@ void cVisitor::Visit(cBinaryExprNode* node) { node->VisitAllChildren(this); }
 void cVisitor::Visit(cStringExprNode* node) { node->VisitAllChildren(this); }
 void cVisitor::Visit(cMemberExprNode* node) { node->VisitAllChildren(this); }
 void cVisitor::Visit(cArrayExprNode* node)  { node->VisitAllChildren(this); }
-
-
-// Optional: starting point for traversal
-/*void cVisitor::VisitAllNodes(cAstNode* node)
+void cVisitor::VisitAllNodes(cAstNode *node)
 {
-    if (node != nullptr)
-        node->Visit(this);
-}*/
+    node->Visit(this);
+}

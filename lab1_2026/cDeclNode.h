@@ -29,4 +29,7 @@ public:
     virtual int  GetSize()  { return 0; }
 
     virtual cDeclNode* GetType() = 0;
+    virtual string GetName() = 0;
+
+    bool IsCompatibleWith(cDeclNode *type);
 };

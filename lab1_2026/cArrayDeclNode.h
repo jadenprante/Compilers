@@ -27,6 +27,11 @@ public:
         cSymbol* typeSym = dynamic_cast<cSymbol*>(GetChild(0));
         return typeSym->GetDecl();
     }
+    virtual std::string GetName() override
+    {
+        cSymbol *sym = dynamic_cast<cSymbol*>(GetChild(1));
+        return sym->GetName();
+    }
 private:
     int m_count;
 };

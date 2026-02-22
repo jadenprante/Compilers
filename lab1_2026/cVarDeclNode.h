@@ -11,7 +11,7 @@ class cVarDeclNode : public cDeclNode
 public:
     cVarDeclNode(cSymbol *type, cSymbol *name)
     {
-        if (g_symbolTable.FindLocal(name->GetName()) != nullptr)
+        /*if (g_symbolTable.FindLocal(name->GetName()) != nullptr)
         {
             SemanticParseError("Symbol " + name->GetName() +
                                " already defined in current scope");
@@ -19,7 +19,7 @@ public:
         }
 
         g_symbolTable.Insert(name);
-        name->SetDecl(this);
+        name->SetDecl(this);*/
 
         AddChild(type);
         AddChild(name);
@@ -33,5 +33,10 @@ public:
     virtual cDeclNode* GetType()
     {
         return dynamic_cast<cSymbol*>(GetChild(0))->GetDecl();
+    }
+    virtual std::string GetName() override
+    {
+        cSymbol *sym = dynamic_cast<cSymbol*>(GetChild(1));
+        return sym->GetName();
     }
 };

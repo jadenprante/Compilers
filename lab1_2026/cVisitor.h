@@ -37,7 +37,7 @@ class cArrayExprNode;
 class cVisitor
 {
 public:
-    virtual void VisitAllNodes(cAstNode* node) = 0;
+    virtual void VisitAllNodes(cAstNode* node);
     virtual void Visit(cAstNode* node);
     virtual void Visit(cBlockNode* node);
     virtual void Visit(cDeclNode* node);
@@ -59,8 +59,8 @@ public:
     virtual void Visit(cReturnNode* node);
     virtual void Visit(cVarExprNode* node);
     virtual void Visit(cBinaryExprNode* node);
-	virtual void Visit(cStringExprNode* node);
-	virtual void Visit(cMemberExprNode* node);
-	virtual void Visit(cArrayExprNode* node);
+    virtual void Visit(cStringExprNode* node);
+    virtual void Visit(cMemberExprNode* node);
+    virtual void Visit(cArrayExprNode* node);
 
 };

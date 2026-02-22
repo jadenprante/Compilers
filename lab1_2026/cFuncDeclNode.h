@@ -40,6 +40,10 @@ public:
         AddChild(stmts);
     }
 
+    int ParamCount();
+    cDeclNode* GetParam(int i);
+    bool HasDefinition();
+
     virtual string NodeType() override { return "funcdecl"; }
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
     virtual bool IsFunc() { return true; }
@@ -47,6 +51,16 @@ public:
     virtual cDeclNode* GetType()
     {
         return dynamic_cast<cSymbol*>(GetChild(0))->GetDecl();
+    }
+
+    cSymbol* GetSymbol()
+    {
+        return dynamic_cast<cSymbol*>(GetChild(1));
+    }
+
+    virtual std::string GetName() override
+    {
+        return GetSymbol()->GetName();
     }
 
 private:
