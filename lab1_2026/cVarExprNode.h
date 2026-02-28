@@ -36,6 +36,14 @@ public:
             " is a function, not a variable");
         }
     }*/
+
+    virtual int GetSize() const { return m_size; }
+    virtual void SetSize(int size) { m_size = size; }
+
+    virtual int GetOffset() const { return m_offset; }
+    virtual void SetOffset(int offset) { m_offset = offset; }
 private:
     cSymbol* m_symbol;
+    int m_size = 0;
+    int m_offset = 0;
 };

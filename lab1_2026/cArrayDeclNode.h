@@ -32,6 +32,9 @@ public:
         cSymbol *sym = dynamic_cast<cSymbol*>(GetChild(1));
         return sym->GetName();
     }
+    virtual int GetCount() { return m_count; }
+    virtual void SetCount(int count) { m_count = count; } 
+
 private:
     int m_count;
 };

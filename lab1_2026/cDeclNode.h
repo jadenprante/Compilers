@@ -26,10 +26,18 @@ public:
     virtual bool IsInt()    { return false; }
     virtual bool IsChar()   { return false; }
 
-    virtual int  GetSize()  { return 0; }
+    virtual int  GetSize()  { return m_size; }
+    virtual void SetSize(int size) { m_size = size; }
+
+    virtual int GetOffset() const { return m_offset; }
+    virtual void SetOffset(int offset) { m_offset = offset; }
 
     virtual cDeclNode* GetType() = 0;
     virtual string GetName() = 0;
 
     bool IsCompatibleWith(cDeclNode *type);
+private:
+    int m_size = 0;
+    int m_offset = 0;
+
 };

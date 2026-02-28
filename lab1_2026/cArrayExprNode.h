@@ -50,4 +50,19 @@ public:
             " is not an int");
         }
     }*/
+
+    virtual int GetSize() const { return m_size; }
+    virtual void SetSize(int size) { m_size = size; }
+
+    virtual int GetOffset() const { return m_offset; }
+    virtual void SetOffset(int offset) { m_offset = offset; }
+
+    virtual void AddRowSize(int size) { m_rowSizes.push_back(size); }
+    virtual const std::vector<int>& GetRowSizes() const { return m_rowSizes; }
+
+private:
+    int m_size = 0;
+    int m_offset = 0;
+    std::vector<int> m_rowSizes;
+
 };

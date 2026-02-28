@@ -39,4 +39,9 @@ class cBlockNode : public cStmtNode
         {
             return static_cast<cStmtsNode*>(GetChild(1));
         }
+        virtual int GetSize() const { return m_size; }
+        virtual void SetSize(int size) { m_size = size; }
+
+private:
+        int m_size = 0;
 };
