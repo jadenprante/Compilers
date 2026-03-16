@@ -27,7 +27,7 @@ cAstNode *yyast_root = nullptr;
 // takes two string args: input_file, and output_file
 int main(int argc, char **argv)
 {
-    std::cout << "Philip Howard" << std::endl;
+    std::cout << "Jaden Prante" << std::endl;
 
     std::string outfile_name;
     int result = 0;
