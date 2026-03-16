@@ -26,6 +26,8 @@ public:
         return " value=\"" + std::to_string(m_value) + "\"";
     }
 
+    int GetValue() const {return m_value; }
+
     virtual string NodeType() { return "int"; }
     virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
 

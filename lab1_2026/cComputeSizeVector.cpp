@@ -1,4 +1,4 @@
-#include "cComputeSizeVisitor.h"
+#include "cComputeSizeVector.h"
 
 #include "cProgramNode.h"
 #include "cBlockNode.h"

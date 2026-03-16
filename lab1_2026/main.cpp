@@ -1,95 +1,95 @@
-﻿//**************************************
+//**************************************
 // main.cpp
 //
-// Main routine for lang compiler.
-// This version only runs the lexer
+// Main function for lang compiler
 //
 // Author: Phil Howard 
 // phil.howard@oit.edu
 //
-// Date: Nov. 23, 2015
-//
-#include <cstdio>
-#include <cstdlib>
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
-#include <unistd.h>
-
+#include "cSymbolTable.h"
 #include "lex.h"
-#include "tokens.h"
-
-// AST and symbol table
 #include "astnodes.h"
 #include "langparse.h"
-#include "cSymbolTable.h"
-#include "cSymbol.h"
+#include "cComputeSizeVector.h"
+#include "cCodeGenVisitor.h"
 
-// ------------------------------
-// Globals
-// ------------------------------
-cSymbolTable g_symbolTable;        // single definition
-long long cSymbol::nextId = 0;     // static member initialization
-cAstNode* yyast_root = nullptr;    // AST root
+// define global variables
+cSymbolTable g_symbolTable;
+long long cSymbol::nextId;
 
-// ------------------------------
-// Main
-// ------------------------------
-int main(int argc, char** argv)
+cAstNode *yyast_root = nullptr;
+
+// takes two string args: input_file, and output_file
+int main(int argc, char **argv)
 {
-    const char* infile = nullptr;
-    const char* outfile = nullptr;
+    std::cout << "Philip Howard" << std::endl;
+
+    std::string outfile_name;
+    int result = 0;
 
     if (argc > 1)
-        infile = argv[1];
+    {
+        yyin = fopen(argv[1], "r");
+        if (yyin == nullptr)
+        {
+            std::cerr << "ERROR: Unable to open file " << argv[1] << "\n";
+            exit(-1);
+        }
+    }
+
     if (argc > 2)
-        outfile = argv[2];
-
-    // Open input file
-    if (infile)
     {
-        yyin = fopen(infile, "r");
-        if (!yyin)
+        outfile_name = argv[2];
+    } else {
+        outfile_name = "langout";
+    }
+
+    g_symbolTable.IncreaseScope();
+
+    result = yyparse();
+    if (yyast_root != nullptr)
+    {
+        if (result == 0)
         {
-            std::cerr << "Unable to open input file: " << infile << "\n";
-            return -1;
+            // NOTE: we should run the semantic error checker here,
+            // but not everyone got it to work, so we'll skip it.
+            // If yours works, feel free to include it
+            //
+            // cSemantic semantics;
+            // semantics.VisitAllNodes(yyast_root);
+            // result += semantics.NumErrors();
+            //
+            if (result == 0)
+            {
+                cComputeSizeVisitor size_t;
+                size_t.VisitAllNodes(yyast_root);
+
+                // need to make the coder go out of scope before assembling
+                {
+                    cCodeGenVisitor coder(outfile_name + ".sl");
+                    coder.VisitAllNodes(yyast_root);
+                }
+
+                string cmd = "slasm " + outfile_name + ".sl io320.sl";
+                system(cmd.c_str());
+            }
+        } 
+
+        if (result != 0)
+        {
+            std::cerr << yynerrs << " Errors in compile\n";
         }
     }
 
-    // Redirect output if file specified
-    if (outfile)
+    if (result == 0 && yylex() != 0)
     {
-        FILE* out = fopen(outfile, "w");
-        if (!out)
-        {
-            std::cerr << "Unable to open output file: " << outfile << "\n";
-            return -1;
-        }
-
-        int out_fd = fileno(out);
-        if (dup2(out_fd, 1) != 1)
-        {
-            std::cerr << "Unable to redirect stdout\n";
-            return -1;
-        }
+        std::cerr << "Junk at end of program\n";
     }
 
-    // ------------------------------
-    // Parse program
-    // ------------------------------
-    int parse_result = yyparse();
-
-    if (yyast_root)
-    {
-        if (parse_result == 0)
-        {
-            // Print XML representation of the AST
-            std::cout << yyast_root->ToString();
-        }
-        else
-        {
-            std::cerr << "Errors in compilation.\n";
-        }
-    }
-
-    return parse_result;
+    return result;
 }

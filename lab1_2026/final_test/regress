@@ -1,0 +1,7 @@
+#!/bin/bash
+# Run all tests
+
+test/runt test1
+test/runt test2
+# Add more tests here as needed, e.g.
+# test/runt test3

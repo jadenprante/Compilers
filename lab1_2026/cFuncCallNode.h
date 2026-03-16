@@ -15,7 +15,7 @@ public:
 
     cSymbol* GetSymbol();
     int ArgCount();
-    cExprNode* GetArg(int i);
+    //cExprNode* GetArg(int i);
 
     virtual std::string NodeType() override { return "funcCall"; }
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
@@ -24,6 +24,13 @@ public:
         cSymbol* sym = dynamic_cast<cSymbol*>(GetChild(0));
         return sym->GetDecl()->GetType();
     }
+    cExprNode* GetArg(int index);
+
+    int NumArgs() const { return (int)m_args.size(); }
+    string GetName() const { return m_name; }
+private:
+    vector<cExprNode*> m_args;
+    string m_name;
     /*void cSemanticVisitor::Visit(cFuncCallNode *node)
     {
         VisitAllChildren(node);

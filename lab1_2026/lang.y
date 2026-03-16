@@ -93,7 +93,7 @@ static bool g_semanticErrorHappened = false;
 %%
 
 program:
-    block
+    block 
     {
         $$ = new cProgramNode($1);
         yyast_root = $$;

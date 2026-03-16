@@ -11,9 +11,9 @@ public:
     virtual void Visit(cProgramNode *node) override;
     virtual void Visit(cBlockNode *node) override;
 
-    virtual void Visit(cVarDeclNode *node) override;
-    virtual void Visit(cArrayDeclNode *node) override;
-    virtual void Visit(cStructDeclNode *node) override;
+    virtual void Visit(cVarDeclNode *node);
+    virtual void Visit(cArrayDeclNode *node);
+    virtual void Visit(cStructDeclNode *node);
     virtual void Visit(cFuncDeclNode *node) override;
 
     virtual void Visit(cVarExprNode *node) override;

@@ -8,13 +8,15 @@
 // keep this class current with all your AST node types.
 
 #pragma once
-//#include "cArrayExprNode.h"
+
+// Forward declarations for all AST node types
 class cAstNode; 
 class cBlockNode; 
 class cDeclNode; 
 class cDeclsNode; 
 class cExprNode;
 class cIntExprNode;
+class cFloatExprNode;
 class cOpNode; 
 class cPrintNode;
 class cProgramNode; 
@@ -32,18 +34,27 @@ class cBinaryExprNode;
 class cStringExprNode;
 class cMemberExprNode;
 class cArrayExprNode;
+class cVarDeclNode;
+class cArrayDeclNode;
+class cStructDeclNode;
 
-
+// Base visitor class
 class cVisitor
 {
 public:
+    virtual ~cVisitor() {}  // ensure proper vtable
+
+    // Entry point
     virtual void VisitAllNodes(cAstNode* node);
+
+    // Visit methods for each node type
     virtual void Visit(cAstNode* node);
     virtual void Visit(cBlockNode* node);
     virtual void Visit(cDeclNode* node);
     virtual void Visit(cDeclsNode* node);
     virtual void Visit(cExprNode* node);
     virtual void Visit(cIntExprNode* node);
+    virtual void Visit(cFloatExprNode* node);
     virtual void Visit(cOpNode* node);
     virtual void Visit(cPrintNode* node);
     virtual void Visit(cProgramNode* node);
@@ -63,4 +74,8 @@ public:
     virtual void Visit(cMemberExprNode* node);
     virtual void Visit(cArrayExprNode* node);
 
+    // Declarations for lab 6/7
+    virtual void Visit(cVarDeclNode* node);
+    virtual void Visit(cArrayDeclNode* node);
+    virtual void Visit(cStructDeclNode* node);
 };

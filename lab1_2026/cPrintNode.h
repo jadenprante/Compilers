@@ -26,4 +26,7 @@ class cPrintNode : public cStmtNode
 		
         virtual string NodeType() { return string("print"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
+        cExprNode* GetExpr() const { return m_expr; }
+    private:
+        cExprNode* m_expr;
 };

@@ -18,187 +18,163 @@ using std::vector;
 
 #include "cVisitor.h"
 
-// The following are defined in lex.h, but can't include due to circularity
-extern int yylineno;        // Need to be able to store line numbers
-extern int yynerrs;         // Increment on each semantic error
+// Defined in lex.h but declared here to avoid circular includes
+extern int yylineno;
+extern int yynerrs;
 
-// Declare the Semantic Error routine used at parse time.
-// By declaring it here, all AST node implementations have access to it.
+// Semantic error routine
 void SemanticParseError(std::string error);
 
 class cAstNode
 {
-    public:
-        //*************************************
-        // Constructor
-        cAstNode() : m_LineNum(yylineno), m_hasSemanticError(false) {}
+public:
+    //*************************************
+    // Constructor
+    cAstNode() : m_LineNum(yylineno), m_hasSemanticError(false) {}
 
-    //****************************************
-    // As protected, these methods are limited as to where you call them.
-    // I impose an even more-strict requirement:
-    //     You are not allowed to call any of these methods except on a node
-    //     of your own class. Example, code within cExprNode can't call
-    //     HasChildren() on a node of type cVarExprNode().
-    protected:
-        //*************************************
-        // Add a child to this node
-        void AddChild(cAstNode *child)
+    //*************************************
+    // Convert AST to XML string
+    string ToString()
+    {
+        return ToStringImpl(0, true);
+    }
+
+    //*************************************
+    // Print semantic error
+    void SemanticError(string message)
+    {
+        std::cout << "ERROR: " << message
+                  << " near line " << m_LineNum << "\n";
+        yynerrs++;
+        m_hasSemanticError = true;
+    }
+
+    //*************************************
+    // Check for semantic errors in subtree
+    bool HasSemanticError()
+    {
+        if (m_hasSemanticError)
+            return true;
+
+        for (auto child : m_children)
         {
-            m_children.push_back(child);
+            if (child != nullptr && child->HasSemanticError())
+                return true;
         }
+        return false;
+    }
 
-        //*************************************
-        // Copy all children from one node into this node
-        void AddAllChildren(cAstNode *node)
+    //*************************************
+    // Visitor entry point
+    virtual void Visit(cVisitor *visitor) = 0;
+
+    //*************************************
+    // Visit all children (used by visitors)
+    void VisitAllChildren(cVisitor* visitor)
+    {
+        for (auto child : m_children)
         {
-            if (node != nullptr && node->HasChildren())
+            if (child != nullptr)
+                child->Visit(visitor);
+        }
+    }
+
+    //*************************************
+    // Child access for visitors
+    cAstNode* GetChild(int child)
+    {
+        if (child >= (int)m_children.size())
+            return nullptr;
+
+        return m_children[child];
+    }
+
+    int NumChildren() const
+    {
+        return (int)m_children.size();
+    }
+
+protected:
+    //*************************************
+    // Add child
+    void AddChild(cAstNode *child)
+    {
+        m_children.push_back(child);
+    }
+
+    //*************************************
+    // Copy children from another node
+    void AddAllChildren(cAstNode *node)
+    {
+        if (node != nullptr && node->HasChildren())
+        {
+            for (auto child : node->m_children)
             {
-                for (auto it=node->m_children.begin(); 
-                        it != node->m_children.end(); 
-                        it++)
-                {
-                    // used to include:
-                    // if ( (*it) != nullptr) 
-                    AddChild(*it);
-                }
+                AddChild(child);
             }
         }
+    }
 
-        //*************************************
-        bool HasChildren()      { return !m_children.empty(); }
+    //*************************************
+    bool HasChildren() const
+    {
+        return !m_children.empty();
+    }
 
-        //*************************************
-        int NumChildren()       { return (int)m_children.size(); }
+    //*************************************
+    void SetChild(int index, cAstNode *child)
+    {
+        m_children[index] = child;
+    }
 
-        //*************************************
-        // Return a child by index
-        cAstNode* GetChild(int child)
+    //*************************************
+    // Node type for XML
+    virtual string NodeType() = 0;
+
+    //*************************************
+    // Optional attributes
+    virtual string AttributesToString()
+    {
+        return "";
+    }
+
+private:
+    //*************************************
+    // Internal recursive XML builder
+    string ToStringImpl(int indent, bool isRoot)
+    {
+        string result;
+
+        if (isRoot && NodeType() == "program")
+            result += "<?xml version=\"1.0\"?>\n";
+
+        result.append(indent * 2, ' ');
+        result += "<" + NodeType();
+        result += AttributesToString();
+
+        if (HasChildren())
         {
-            if (child >= (int)m_children.size()) return nullptr;
-            return m_children[child];
-        }
+            result += ">\n";
 
-        //*************************************
-        // Set a child by index. The child must already exist
-        void SetChild(int index, cAstNode *child)
+            for (auto child : m_children)
+            {
+                if (child != nullptr)
+                    result += child->ToStringImpl(indent + 1, false);
+            }
+
+            result.append(indent * 2, ' ');
+            result += "</" + NodeType() + ">\n";
+        }
+        else
         {
-            m_children[index] = child;
+            result += "/>\n";
         }
-
-    //*****************************************
-    // The following are only used by the ToString function. They should
-    // not be called anywhere else.
-
-        //*************************************
-        // Return the name of the node type
-        virtual string NodeType() = 0; //      { return "AST"; }
-
-        //*************************************
-        // Must be overriden by nodes that have attributes
-        virtual string AttributesToString()   { return string(""); }
-
-    public:
-        //*************************************
-        // The following functions are public, but their use is limited:
-        //    ToString should only be called by main
-        //
-        //    The VisitAllChildren should only be called by the Visitor base
-        //    class or it's derivatives.
-        //
-        //    The Visit() function should only be called within derivitives of
-        //    the Visitor class.
-        //
-        //    SemanticError() and HasSemanticError() functions should only be 
-        //    called within derivitives of the Visitor class.
-        //*************************************
-
-        //*************************************
-        // return a string representation of the node
-		string ToString()
-		{
-			return ToStringImpl(0, true);
-		}
-
-		private:
-			string ToStringImpl(int indent, bool isRoot)
-			{
-				string result;
-
-				if (isRoot && NodeType() == "program")
-				result += "<?xml version=\"1.0\"?>\n";
-
-			result.append(indent * 2, ' ');
-			result += "<" + NodeType();
-			result += AttributesToString();
-
-			if (HasChildren())
-			{
-				result += ">\n";
-				for (auto it = m_children.begin(); it != m_children.end(); ++it)
-					if ((*it) != nullptr) result += (*it)->ToStringImpl(indent + 1, false);
-
-				result.append(indent * 2, ' ');
-				result += "</" + NodeType() + ">\n";
-			}
-			else
-			{
-				result += "/>\n";
-			}
 
         return result;
     }
 
-        //*************************************
-        // Used to print semantic errors
-        void SemanticError(string message)
-        {
-            std::cout << "ERROR: " << message << " near line " << m_LineNum 
-                << "\n";
-            yynerrs++;
-            m_hasSemanticError = true;
-        }
-
-        //**************************************
-        // VisitAllChildren should only be called by the Visitor base class
-        // or any of its derivatives.
-        void VisitAllChildren(cVisitor* visitor)
-        {
-            for (auto it=m_children.begin(); it<m_children.end(); it++)
-            {
-                if ((*it) != nullptr) (*it)->Visit(visitor);
-            }
-        }
-
-        //*************************************
-        // Used by visitor pattern. Every node must override with:
-        //    virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
-        virtual void Visit(cVisitor *visitor) = 0;
-
-        //*************************************
-        // Do a deep check to see if this node or its children have semantic
-        // errors
-        bool HasSemanticError()
-        {
-            if (m_hasSemanticError) 
-                return true;
-            else
-            {
-                for (auto it=m_children.begin(); it != m_children.end(); it++)
-                {
-                    if ( (*it) != nullptr && (*it)->HasSemanticError())
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-    private:
-        vector<cAstNode *> m_children;      // list of all children
-        int m_LineNum;                      // The source line at the time the
-                                            // node was created
-        bool m_hasSemanticError;
+private:
+    vector<cAstNode *> m_children;
+    int m_LineNum;
+    bool m_hasSemanticError;
 };
-

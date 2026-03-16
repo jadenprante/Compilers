@@ -13,42 +13,28 @@
 CXX = g++
 CXXFLAGS = -Wall -g -O0 -std=c++11
 
-OBJS = langparse.o langlex.o main.o cSymbolTable.o cVisitor.o cComputeSizeVector.o cCodeGenVisitor.o cVarExprNode.o cFuncCallNode.o emit.o
+OBJS = \
+	langparse.o \
+	langlex.o \
+	cSymbolTable.o \
+	main.o
 
 all: lang
 
 lang: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o lang
-
-cVisitor.o: cVisitor.cpp cVisitor.h
-	$(CXX) $(CXXFLAGS) -c cVisitor.cpp -o cVisitor.o
-
-cComputeSizeVector.o: cComputeSizeVector.cpp cComputeSizeVector.h
-	$(CXX) $(CXXFLAGS) -c cComputeSizeVector.cpp -o cComputeSizeVector.o
-
-cCodeGenVisitor.o: cCodeGenVisitor.cpp cCodeGenVisitor.h
-	$(CXX) $(CXXFLAGS) -c cCodeGenVisitor.cpp -o cCodeGenVisitor.o
-	
-cVarExprNode.o: cVarExprNode.cpp cVarExprNode.h
-	$(CXX) $(CXXFLAGS) -c cVarExprNode.cpp -o cVarExprNode.o
-
-cFuncCallNode.o: cFuncCallNode.cpp cFuncCallNode.h
-	$(CXX) $(CXXFLAGS) -c cFuncCallNode.cpp -o cFuncCallNode.o
-
-emit.o: emit.cpp emit.h
-	$(CXX) $(CXXFLAGS) -c emit.cpp -o emit.o
+	$(CXX) $(OBJS) -o lang
 
 # -------------------------------
-# Bison (generate cpp and header)
+# Bison (explicit header name!)
 # -------------------------------
 langparse.cpp langparse.h: lang.y
 	bison --defines=langparse.h --output=langparse.cpp lang.y
 
-langparse.o: langparse.cpp langparse.h
+langparse.o: langparse.cpp
 	$(CXX) $(CXXFLAGS) -c langparse.cpp -o langparse.o
 
 # -------------------------------
-# Flex
+# Flex (depends on langparse.h)
 # -------------------------------
 langlex.c: lang.l langparse.h
 	flex -o langlex.c lang.l
@@ -67,3 +53,4 @@ cSymbolTable.o: cSymbolTable.cpp cSymbolTable.h
 
 clean:
 	rm -f *.o lang langlex.c langparse.cpp langparse.h y.tab.h
+

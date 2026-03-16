@@ -28,12 +28,16 @@ public:
         return dynamic_cast<cOpNode*>(GetChild(1));
     }
 
+    string GetOp() const { return m_op; }
+
     cExprNode* GetRight()
     {
         return dynamic_cast<cExprNode*>(GetChild(2));
     }
 
     virtual string NodeType() override { return "binary"; }
-
+    
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
+private:
+    string m_op;
 };

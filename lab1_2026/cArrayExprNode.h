@@ -60,9 +60,13 @@ public:
     virtual void AddRowSize(int size) { m_rowSizes.push_back(size); }
     virtual const std::vector<int>& GetRowSizes() const { return m_rowSizes; }
 
+    cArrayExprNode(cSymbol *sym) : m_symbol(sym) {}
+
+    cSymbol* GetSymbol() { return m_symbol; }
+
 private:
     int m_size = 0;
     int m_offset = 0;
     std::vector<int> m_rowSizes;
-
+    cSymbol *m_symbol;
 };
