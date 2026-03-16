@@ -1,1 +1,13 @@
-55555
+<?xml version="1.0"?>
+<program>
+  <block>
+    <decls>
+      <var_decl type="int" name="x"/>
+    </decls>
+    <stmts>
+      <print>
+        <string_expr value="Hello, world!"/>
+      </print>
+    </stmts>
+  </block>
+</program>
